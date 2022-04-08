@@ -40,13 +40,29 @@ class ImageTranslatorBase(ABC):
         Parameters
         ----------
         monitor
-        blind_spots : Optional[Union[str, List[Tuple[int]]]]
+
+        blind_spots : Optional[Union[str,List[Tuple[int]]]]
+            List of voxel coordinates (relative to receptive field center) to
+            be included in the blind-spot. If None is passed then the
+            blindspots are automatically discovered from the image content.
+            If 'center' is passed then no additional blindspots to the
+            center pixel are considered.
+
         tile_min_margin : int
+            Minimal width of tile margin in voxels.
+            (advanced)
+
         tile_max_margin : Optional[int]
+            Maximal width of tile margin in voxels.
+            (advanced)
+
         max_memory_usage_ratio : float
-            Maximum allowed memory load.
+            Maximum allowed memory load, value must be within [0, 1]. Default
+            is 90%. (advanced)
+
         max_tiling_overhead : float
-            Maximum allowed margin overhead during tiling.
+            Maximum allowed margin overhead during tiling. Default is 10%.
+            (advanced)
 
         """
         self.self_supervised = False
@@ -59,7 +75,7 @@ class ImageTranslatorBase(ABC):
 
         self.max_memory_usage_ratio = max_memory_usage_ratio
         self.max_tiling_overhead = max_tiling_overhead
-        self.max_voxels_per_tile = 768 ** 3
+        self.max_voxels_per_tile = 768**3
 
         self.callback_period = 3
         self.last_callback_time_sec = -math.inf
@@ -248,7 +264,7 @@ class ImageTranslatorBase(ABC):
             )
 
             # Automatic blind-spot discovery:
-            if self.blind_spots == 'auto':
+            if self.blind_spots is None:
                 lprint(
                     "Automatic discovery of noise autocorrelation and specification of N2S blind-spots activated!"
                 )
@@ -487,7 +503,7 @@ class ImageTranslatorBase(ABC):
 
             # how much do we have to tile because of the suggested tile size?
             split_factor_suggested_tile_size = image.size / (
-                suggested_tile_size ** num_spatio_temp_dim
+                suggested_tile_size**num_spatio_temp_dim
             )
             lprint(
                 f"How much do we need to tile because of the suggested tile size? : {split_factor_suggested_tile_size} times."

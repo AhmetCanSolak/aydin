@@ -29,10 +29,10 @@ class ConstructorArgumentsWidget(QWidget):
         self.arguments_layout.setAlignment(Qt.AlignTop)
 
         for index, (name, default_value) in enumerate(zip(arg_names, arg_defaults)):
-            param_label = QLabel(f"{name.strip().replace('_', ' ')}: ")
-            param_label.setToolTip(
-                f"{self.annonation_prettifier(arg_annotations[name])}"
-            )
+            param_name = name.strip().replace('_', ' ')
+            param_label = QLabel(f"{param_name}: ")
+            param_label.setWordWrap(True)
+            param_label.setToolTip(f"{param_name}")
 
             if default_value is None:
                 default_value = "auto"
@@ -46,7 +46,7 @@ class ConstructorArgumentsWidget(QWidget):
                 param_linedit = QLineEdit(str(default_value), self)
 
             param_linedit.setToolTip(
-                f"{self.annonation_prettifier(arg_annotations[name])}"
+                f"{self.annotation_prettifier(arg_annotations[name])}"
             )
 
             if inspect.isclass(reference_class):
@@ -90,7 +90,7 @@ class ConstructorArgumentsWidget(QWidget):
         self.setLayout(self.arguments_layout)
 
     @staticmethod
-    def annonation_prettifier(annotation):
+    def annotation_prettifier(annotation):
         if "'int'" in str(annotation):
             return "int"
         elif "'float'" in str(annotation):
@@ -123,9 +123,22 @@ class ConstructorArgumentsWidget(QWidget):
                 value = lineedit.text()
             elif "dtype" in str(annotation):
                 value = numpy.dtype(lineedit.text())
+            elif "str" in str(annotation):
+                value = lineedit.text()
             else:
                 value = json.loads(lineedit.text())
 
             params_dict["kwargs"][name] = value
 
         return params_dict
+
+    def set_advanced_enabled(self, enable: bool = False):
+        for _ in range(self.arguments_layout.rowCount()):
+            if (
+                "(advanced)"
+                in self.arguments_layout.itemAtPosition(_, 2).widget().text()
+            ):
+                for column_index in range(3):
+                    self.arguments_layout.itemAtPosition(
+                        _, column_index
+                    ).widget().setHidden(not enable)

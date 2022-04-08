@@ -18,7 +18,10 @@ class ImageDenoiserClassic(ImageTranslatorBase):
         main_channel: Optional[int] = None,
         max_voxels_for_training: Optional[int] = None,
         calibration_kwargs=None,
-        **kwargs,
+        tile_min_margin: int = 8,
+        tile_max_margin: Optional[int] = None,
+        max_memory_usage_ratio: float = 0.9,
+        max_tiling_overhead: float = 0.1,
     ):
         """Constructs a Classic image denoiser.
 
@@ -36,10 +39,29 @@ class ImageDenoiserClassic(ImageTranslatorBase):
             Maximum number of the voxels that can be
             used for training.
 
-        kwargs : dict
-            Keyword arguments.
+        tile_min_margin : int
+            Minimal width of tile margin in voxels.
+            (advanced)
+
+        tile_max_margin : Optional[int]
+            Maximal width of tile margin in voxels.
+            (advanced)
+
+        max_memory_usage_ratio : float
+            Maximum allowed memory load, value must be within [0, 1]. Default is 90%.
+            (advanced)
+
+        max_tiling_overhead : float
+            Maximum allowed margin overhead during tiling. Default is 10%.
+            (advanced)
         """
-        super().__init__(**kwargs)
+        super().__init__(
+            blind_spots=None,
+            tile_min_margin=tile_min_margin,
+            tile_max_margin=tile_max_margin,
+            max_memory_usage_ratio=max_memory_usage_ratio,
+            max_tiling_overhead=max_tiling_overhead,
+        )
 
         self.calibration_kwargs = (
             {} if calibration_kwargs is None else calibration_kwargs
@@ -76,20 +98,16 @@ class ImageDenoiserClassic(ImageTranslatorBase):
         """
         with lsection(f"Saving 'classic' image denoiser to {path}"):
             frozen = super().save(path)
-            # TODO: implement!
 
         return frozen
 
     def _load_internals(self, path: str):
         with lsection(f"Loading 'classic' image denoiser from {path}"):
-            # TODO: implement!
             pass
-            # self.best_parameters = FeatureGeneratorBase.load(path)
 
     # We exclude certain fields from saving:
     def __getstate__(self):
         state = self.__dict__.copy()
-        # TODO: implement!
         return state
 
     def _train(

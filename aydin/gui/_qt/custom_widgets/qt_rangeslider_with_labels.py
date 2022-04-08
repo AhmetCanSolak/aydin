@@ -1,4 +1,5 @@
 from qtpy.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton
+
 from aydin.gui._qt.custom_widgets.qt_range_slider import QHRangeSlider
 
 
@@ -55,6 +56,13 @@ class QRangeSliderWithLabels(QWidget):
         if self.slider_label.text() in ["X", "Y"] and upper - lower < 64:
             self.slider.setValues((self.lower_cutoff, self.upper_cutoff))
             return
+
+        if self.slider_label.text() not in ["X", "Y"]:
+            if str(int(lower)) != self.lower_limit_label.text():
+                self.parent.update_current_viewer_dims(self.slider_label.text(), lower)
+
+            if str(int(upper)) != self.upper_limit_label.text():
+                self.parent.update_current_viewer_dims(self.slider_label.text(), upper)
 
         self.parent.update_crop_label_layer()
         self.lower_limit_label.setText(str(int(lower)))

@@ -2,21 +2,27 @@ from functools import partial
 from typing import Optional
 
 import numpy
+from numpy.typing import ArrayLike
 from skimage.restoration import denoise_nl_means as skimage_denoise_nl_means
 from skimage.restoration import estimate_sigma
 
+from aydin.it.classic_denoisers import _defaults
 from aydin.util.crop.rep_crop import representative_crop
 from aydin.util.denoise_nd.denoise_nd import extend_nd
-from aydin.util.j_invariance.j_invariant_smart import calibrate_denoiser_smart
+from aydin.util.j_invariance.j_invariance import calibrate_denoiser
 
 
 def calibrate_denoise_nlm(
-    image,
+    image: ArrayLike,
     patch_size: int = 7,
     patch_distance: int = 11,
-    crop_size_in_voxels: Optional[int] = None,
-    max_num_evaluations: int = 512,
+    crop_size_in_voxels: Optional[int] = _defaults.default_crop_size_normal.value,
+    optimiser: str = _defaults.default_optimiser.value,
+    max_num_evaluations: int = _defaults.default_max_evals_normal.value,
+    enable_extended_blind_spot: bool = _defaults.default_enable_extended_blind_spot.value,
+    jinv_interpolation_mode: str = _defaults.default_jinv_interpolation_mode.value,
     display_images: bool = False,
+    display_crop: bool = False,
     **other_fixed_parameters,
 ):
     """
@@ -38,14 +44,37 @@ def calibrate_denoise_nlm(
 
     crop_size_in_voxels: int or None for default
         Number of voxels for crop used to calibrate denoiser.
+        Increase this number by factors of two if denoising quality is
+        unsatisfactory -- this can be important for very noisy images.
+        Values to try are: 65000, 128000, 256000, 320000.
+        We do not recommend values higher than 512000.
+
+    optimiser: str
+        Optimiser to use for finding the best denoising
+        parameters. Can be: 'smart' (default), or 'fast' for a mix of SHGO
+        followed by L-BFGS-B.
         (advanced)
 
     max_num_evaluations: int
         Maximum number of evaluations for finding the optimal parameters.
+        Increase this number by factors of two if denoising quality is
+        unsatisfactory.
+
+    enable_extended_blind_spot: bool
+        Set to True to enable extended blind-spot detection.
+        (advanced)
+
+    jinv_interpolation_mode: str
+        J-invariance interpolation mode for masking. Can be: 'median' or
+        'gaussian'.
         (advanced)
 
     display_images: bool
         When True the denoised images encountered during optimisation are shown
+
+    display_crop: bool
+        Displays crop, for debugging purposes...
+        (advanced)
 
     other_fixed_parameters: dict
         Any other fixed parameters
@@ -60,20 +89,12 @@ def calibrate_denoise_nlm(
     image = image.astype(dtype=numpy.float32, copy=False)
 
     # obtain representative crop, to speed things up...
-    crop = representative_crop(image, crop_size=crop_size_in_voxels)
+    crop = representative_crop(
+        image, crop_size=crop_size_in_voxels, display_crop=display_crop
+    )
 
     # We make a first estimate of the noise sigma:
     estimated_sigma = estimate_sigma(image)
-
-    # Sigma range:
-    # sigma_range = estimated_sigma + np.arange(-0.1, 0.1, 0.02)
-    # clip sigma range:
-    # sigma_range = numpy.clip(sigma_range, 0, 1)
-
-    # h range:
-    # h_range = estimated_sigma + np.arange(-0.1, 0.1, 0.02)
-    # clip sigma range:
-    # h_range = numpy.clip(h_range, 0, 1)
 
     sigma_range = (max(0.0, 0.2 * estimated_sigma), 4 * estimated_sigma)
     cutoff_distance_range = (max(0.0, 0.2 * estimated_sigma), 4 * estimated_sigma)
@@ -92,12 +113,15 @@ def calibrate_denoise_nlm(
 
     # Calibrate denoiser
     best_parameters = (
-        calibrate_denoiser_smart(
+        calibrate_denoiser(
             crop,
             _denoise_nl_means,
+            mode=optimiser,
             denoise_parameters=parameter_ranges,
-            display_images=display_images,
+            interpolation_mode=jinv_interpolation_mode,
             max_num_evaluations=max_num_evaluations,
+            blind_spots=enable_extended_blind_spot,
+            display_images=display_images,
         )
         | other_fixed_parameters
     )
@@ -109,7 +133,7 @@ def calibrate_denoise_nlm(
 
 
 def denoise_nlm(
-    image,
+    image: ArrayLike,
     patch_size: int = 7,
     patch_distance: int = 11,
     cutoff_distance: float = 0.1,
