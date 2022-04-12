@@ -49,18 +49,16 @@ class RandomForestRegressor(LGBMRegressor):
             (advanced)
 
         """
-        super().__init__(
-            num_leaves,
-            max_num_estimators,
-            max_bin,
-            learning_rate,
-            loss,
-            patience,
-            verbosity,
-        )
-
         with lsection("Random Forest Regressor"):
-            lprint("with no arguments")  # TODO: fix these logs
+            super().__init__(
+                num_leaves,
+                max_num_estimators,
+                max_bin,
+                learning_rate,
+                loss,
+                patience,
+                verbosity,
+            )
 
     def _get_params(self, num_samples, dtype=numpy.float32):
         params = super()._get_params(num_samples, dtype)

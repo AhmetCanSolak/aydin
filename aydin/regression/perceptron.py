@@ -71,7 +71,11 @@ class PerceptronRegressor(RegressorBase):
         self.loss = loss
 
         with lsection("NN Regressor"):
-            lprint("with no arguments")  # TODO: fix these logs
+            lprint(f"max_epochs: {self.max_epochs}")
+            lprint(f"learning_rate: {self.learning_rate}")
+            lprint(f"patience: {self.patience}")
+            lprint(f"depth: {self.depth}")
+            lprint(f"loss: {self.loss}")
 
     def _fit(
         self, x_train, y_train, x_valid=None, y_valid=None, regressor_callback=None
