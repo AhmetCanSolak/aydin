@@ -134,4 +134,4 @@ def run(ver):
     app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
     ex = App(ver)
     ex.show()
-    sys.exit(app.exec())
+    sys.exit(app.exec_())
