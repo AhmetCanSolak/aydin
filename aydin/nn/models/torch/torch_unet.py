@@ -94,28 +94,6 @@ class UNetModel(nn.Module):
                 )
             )
             self.conv_with_batch_norms_second_half.append(_conv_set)
-            # if (
-            #     layer_index == 0
-            # ):  # Handle special case input dimensions for the first layer
-            #     self.conv_with_batch_norms_second_half.append(
-            #         ConvWithBatchNorm(
-            #             self.unet_bottom_conv_out_channels * (int(not self.residual) + 1),
-            #             self.nb_filters
-            #             * max((self.nb_unet_levels - layer_index - 2), 1),
-            #             spacetime_ndim,
-            #         )
-            #     )
-            # else:
-            #     self.conv_with_batch_norms_second_half.append(
-            #         ConvWithBatchNorm(
-            #             self.nb_filters
-            #             * max((self.nb_unet_levels - layer_index - 1 - 2), 1),
-            #             self.nb_filters
-            #             * max((self.nb_unet_levels - layer_index - 2), 1),
-            #             spacetime_ndim,
-            #             normalization='batch',
-            #         )
-            #     )
 
         self.pooling_down = PoolingDown(spacetime_ndim, pooling_mode)
         self.upsampling = nn.Upsample(scale_factor=2, mode='nearest')
@@ -171,8 +149,6 @@ class UNetModel(nn.Module):
                 x = torch.cat([x, skip_layer.pop()], dim=1)
 
             x = self.conv_with_batch_norms_second_half[layer_index](x)
-
-            # x = self.conv_with_batch_norms_second_half[layer_index](x)
 
             # print("up")
 
