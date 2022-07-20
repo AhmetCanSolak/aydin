@@ -74,6 +74,20 @@ def test_masking_2D():
     assert result.dtype == input_array.dtype
 
 
+def test_masking_2D_residual():
+    input_array = torch.zeros((1, 1, 64, 64))
+    model2d = UNetModel(
+        # (64, 64, 1),
+        nb_unet_levels=2,
+        supervised=False,
+        spacetime_ndim=2,
+        residual=True,
+    )
+    result = model2d(input_array, torch.ones(input_array.shape))
+    assert result.shape == input_array.shape
+    assert result.dtype == input_array.dtype
+
+
 # def test_jinet_2D():
 #     input_array = torch.zeros((1, 1, 64, 64))
 #     model2d = JINetModel((64, 64, 1), spacetime_ndim=2)

@@ -54,6 +54,7 @@ class UNetModel(nn.Module):
                 )
 
         # TODO: check if it is a bug to use this filter size on the bottom
+        #   -> TF implementation didn't specify the bottom number of channels, so this attribute can be removed.
         self.unet_bottom_conv_out_channels = self.nb_filters
 
         self.unet_bottom_conv_with_batch_norm = ConvWithBatchNorm(
@@ -64,32 +65,63 @@ class UNetModel(nn.Module):
 
         self.conv_with_batch_norms_second_half = []
         for layer_index in range(self.nb_unet_levels):
-            if (
-                layer_index == 0
-            ):  # Handle special case input dimensions for the first layer
-                self.conv_with_batch_norms_second_half.append(
-                    ConvWithBatchNorm(
-                        self.unet_bottom_conv_out_channels,
-                        self.nb_filters
-                        * max((self.nb_unet_levels - layer_index - 2), 1),
-                        spacetime_ndim,
-                    )
-                )
+            _nb_filters = self.nb_filters * max((self.nb_unet_levels - layer_index - 2), 1)
+            # TODO: Here we assume the channel dim of input image is 1.
+            #  If we don't know the input image channel, we may want to skip the last skip-layer.
+            if self.residual:
+                if layer_index == self.nb_unet_levels - 1:
+                    _nb_filters_in = 1
+                else:
+                    _nb_filters_in = _nb_filters
             else:
-                self.conv_with_batch_norms_second_half.append(
-                    ConvWithBatchNorm(
-                        self.nb_filters
-                        * max((self.nb_unet_levels - layer_index - 1 - 2), 1),
-                        self.nb_filters
-                        * max((self.nb_unet_levels - layer_index - 2), 1),
-                        spacetime_ndim,
-                    )
+                if layer_index == self.nb_unet_levels - 1:
+                    _nb_filters_in = self.nb_filters * max((self.nb_unet_levels - layer_index - 2 - 1), 1) + 1
+                else:
+                    _nb_filters_in = self.unet_bottom_conv_out_channels * (int(not self.residual) + 1)
+
+            _conv_set = nn.Sequential(
+                ConvWithBatchNorm(
+                    _nb_filters_in,
+                    _nb_filters,
+                    spacetime_ndim,
+                ),
+                ConvWithBatchNorm(
+                    _nb_filters,
+                    # TODO: This case assumes the input image channel is 1, and same as above...
+                    1 if (self.residual and layer_index == self.nb_unet_levels - 2) else _nb_filters,
+                    spacetime_ndim,
+                    normalization='batch',
                 )
+            )
+            self.conv_with_batch_norms_second_half.append(_conv_set)
+            # if (
+            #     layer_index == 0
+            # ):  # Handle special case input dimensions for the first layer
+            #     self.conv_with_batch_norms_second_half.append(
+            #         ConvWithBatchNorm(
+            #             self.unet_bottom_conv_out_channels * (int(not self.residual) + 1),
+            #             self.nb_filters
+            #             * max((self.nb_unet_levels - layer_index - 2), 1),
+            #             spacetime_ndim,
+            #         )
+            #     )
+            # else:
+            #     self.conv_with_batch_norms_second_half.append(
+            #         ConvWithBatchNorm(
+            #             self.nb_filters
+            #             * max((self.nb_unet_levels - layer_index - 1 - 2), 1),
+            #             self.nb_filters
+            #             * max((self.nb_unet_levels - layer_index - 2), 1),
+            #             spacetime_ndim,
+            #             normalization='batch',
+            #         )
+            #     )
 
         self.pooling_down = PoolingDown(spacetime_ndim, pooling_mode)
         self.upsampling = nn.Upsample(scale_factor=2, mode='nearest')
 
         if spacetime_ndim == 2:
+            # TODO: do we always assume the output channel to be 1?
             self.conv = nn.Conv2d(8, 1, 1)
         else:
             self.conv = nn.Conv3d(8, 1, 1)
@@ -140,7 +172,7 @@ class UNetModel(nn.Module):
 
             x = self.conv_with_batch_norms_second_half[layer_index](x)
 
-            x = self.conv_with_batch_norms_second_half[layer_index](x)
+            # x = self.conv_with_batch_norms_second_half[layer_index](x)
 
             # print("up")
 

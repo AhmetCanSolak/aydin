@@ -24,28 +24,33 @@ class ConvWithBatchNorm(nn.Module):
             self.conv = nn.Conv2d(
                 in_channels, out_channels, kernel_size, padding='same'
             )
+            if self.normalization == 'instance':
+                self.norm_layer = nn.InstanceNorm2d(out_channels)
+            elif self.normalization == 'batch':
+                self.norm_layer = nn.BatchNorm2d(out_channels, affine=False)
         else:
             self.conv = nn.Conv3d(
                 in_channels, out_channels, kernel_size, padding='same'
             )
+            if self.normalization == 'instance':
+                self.norm_layer = nn.InstanceNorm3d(out_channels)
+            elif self.normalization == 'batch':
+                self.norm_layer = nn.BatchNorm3d(out_channels, affine=False)
 
-        self.relu = nn.ReLU()
-        self.swish = nn.SiLU()
-        self.leaky_relu = nn.LeakyReLU(0.1)
+        if self.activation == 'ReLU':
+            self.act_layer = nn.ReLU()
+        elif self.activation == 'swish':
+            self.act_layer = nn.SiLU()
+        elif self.activation == 'lrel':
+            self.act_layer = nn.LeakyReLU(0.1)
 
     def forward(self, x):
         x = self.conv(x)
 
-        if self.normalization == 'instance':
-            x = self.instance_normalization(x)
-        elif self.normalization == 'batch':
-            x = self.batch_normalization(x)
+        if self.normalization:
+            x = self.norm_layer(x)
 
-        if self.activation == 'ReLU':
-            x = self.relu(x)
-        elif self.activation == 'swish':
-            x = self.swish(x)
-        elif self.activation == 'lrel':
-            x = self.leaky_relu(x)
+        if self.activation:
+            x = self.act_layer(x)
 
         return x
