@@ -214,7 +214,7 @@ def n2t_unet_train_loop(
             # Updating parameters
             optimizer.step()
 
-            # update training loss_deconvolution for whole image:
+            # update training loss for whole image:
             train_loss_value += translation_loss_value.item()
             iteration += 1
 
@@ -231,7 +231,7 @@ def n2t_unet_train_loop(
                 # loss values:
                 translation_loss_value = translation_loss.mean().cpu().item()
 
-                # update validation loss_deconvolution for whole image:
+                # update validation loss for whole image:
                 val_loss_value += translation_loss_value
                 iteration += 1
 
