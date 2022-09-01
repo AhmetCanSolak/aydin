@@ -7,7 +7,7 @@ user-friendly GUI. We call our GUI, ``Aydin Studio``. We intended to have a self
 GUI but also added detailed explanations on each part and tooltips on most of the elements
 of the GUI.
 
-Before we dive into tutorials, please make sure to have ``Aydin`` :doc:`installed<../getting_started/install>` on your computer.
+Before we dive into tutorials, please make sure to have ``Aydin`` on your computer.
 
 Below we explain how to use fundamental features of the ``Aydin Studio``.
 
@@ -174,12 +174,12 @@ Saving denoising options and trained model
 
 You can save your option selections for the selected variant with the help of ``Save Options JSON``
 button in ``Run`` menubar located on the top part of ``Aydin Studio`` window. You can pass the
-saved JSON file to :doc:`Aydin CLI <cli_tutorials>`  to train new models for new images
+saved JSON file to Aydin CLI to train new models for new images
 and denoise them. Worth to mention that ``Aydin Studio``  saves the options JSON next to the resulting
 image by default on each run.
 
 ``Aydin Studio`` also saves the trained model next to the resulting image by default. You can
-pass such trained model file to :doc:`Aydin CLI <cli_tutorials>` to denoise more images
+pass such trained model file to Aydin CLI to denoise more images
 without training a model again. Basically this provides possibility to fine tune parameters and train
 a model for one of your images from a dataset and rapidly denoise(infer) on the rest of the images
 in your dataset.
