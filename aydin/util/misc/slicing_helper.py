@@ -1,3 +1,5 @@
+
+
 def apply_slicing(data, slicing_string: str):
     """
     Function to apply slicing without evaluating argument passed by user
@@ -18,7 +20,7 @@ def apply_slicing(data, slicing_string: str):
     try:
         # Get slicing details for each dimension separately
         slices_for_dims = []
-        slice_strings = slicing_string[1:-1].split(',')
+        slice_strings = str(slicing_string[1:-1]).split(',')
         for _ in range(len(slice_strings)):  # Iterate over number of dimensions
             slice_string = slice_strings[_]
 
@@ -39,7 +41,7 @@ def apply_slicing(data, slicing_string: str):
         # Apply resulting slice object to data array
         sliced_data = data[tuple(slicer)].copy()
 
-    except Exception:
+    except ValueError:
         raise ValueError("Passed slicing argument is not in valid...")
 
     # Return the sliced array back
