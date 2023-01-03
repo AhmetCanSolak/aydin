@@ -19,7 +19,7 @@ def offcore_array(
     max_memory_usage_ratio: float = 0.9,
 ):
     """
-    Instanciates an array of given shape and dtype in  'off-core' fashion i.e. not in main memory.
+    Instantiates an array of given shape and dtype in  'off-core' fashion i.e. not in main memory.
     Right now it simply uses memory mapping on temp file that is deleted after the file is closed
 
     Parameters

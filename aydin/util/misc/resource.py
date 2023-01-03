@@ -4,7 +4,7 @@ import os
 import zipfile
 
 
-def download_and_extract_zipresource(url, targetdir='.'):
+def download_and_extract_zipresource(url: str, targetdir: str = '.'):
     """
     Method to download and extract a zipresource from a url.
 
@@ -21,8 +21,7 @@ def download_and_extract_zipresource(url, targetdir='.'):
         targetdir.mkdir(parents=True, exist_ok=True)
 
     # Compute relative path to resource
-    relative_path_to_zip = f"{targetdir}/{os.path.basename(str(url))}"
-    print("relativepath= ", relative_path_to_zip)
+    relative_path_to_zip = f"{targetdir}/{os.path.basename(url)}"
 
     # Check if target resource already exists, retrieve the resource if not exists
     if os.path.exists(relative_path_to_zip[:-4]):

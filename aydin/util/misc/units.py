@@ -1,5 +1,7 @@
+
+
 def human_readable_byte_size(nbytes: int) -> str:
-    """
+    """Returns human-readable byte size as str.
 
     Parameters
     ----------

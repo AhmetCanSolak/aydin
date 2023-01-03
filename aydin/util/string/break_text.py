@@ -2,8 +2,24 @@ import re
 
 
 def break_text(
-    text, max_width: int = 80, clear_existing_breaks: bool = True, line_break='\n'
+    text: str, max_width: int = 80, clear_existing_breaks: bool = True, line_break: str = '\n'
 ):
+    """
+    A util function cleans the line breaks for certain strings used across our documentation
+    and GUI.
+
+    Parameters
+    ----------
+    text : str
+    max_width : int
+    clear_existing_breaks : bool
+    line_break : str
+
+    Returns
+    -------
+    str
+
+    """
 
     # We remove existing line breaks except double line breaks if requested:
     if clear_existing_breaks:

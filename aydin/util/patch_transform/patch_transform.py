@@ -22,13 +22,14 @@ def extract_patches_nd(
 
     Parameters
     ----------
-    image : ndarray of shape (image_height, image_width) or \
+    image : numpy.typing.ArrayLike
+        ndarray of shape (image_height, image_width) or \
         (image_height, image_width, n_channels)
         The original image data. For color images, the last dimension specifies
         the channel: a RGB image would have `n_channels=3`.
 
-    patch_size : tuple of int (patch_height, patch_width)
-        The dimensions of one patch.
+    patch_size : int or tuple
+        int (dimensions of one patch) or tuple of int (patch_height, patch_width).
 
     max_patches : int or float, default=None
         The maximum number of patches to extract. If `max_patches` is a float
@@ -43,12 +44,12 @@ def extract_patches_nd(
 
     Returns
     -------
-    patches : array of shape (n_patches, patch_height, patch_width) or \
+    patches : numpy.typing.ArrayLike
+        array of shape (n_patches, patch_height, patch_width) or
         (n_patches, patch_height, patch_width, n_channels)
         The collection of patches extracted from the image, where `n_patches`
         is either `max_patches` or the total number of patches that can be
         extracted.
-
 
     """
 
@@ -109,7 +110,8 @@ def reconstruct_from_nd_patches(
 
     Parameters
     ----------
-    patches : ndarray of shape (n_patches, patch_height, patch_width) or \
+    patches : numpy.typing.ArrayLike
+        ndarray of shape (n_patches, patch_height, patch_width) or \
         (n_patches, patch_height, patch_width, n_channels)
         The complete set of patches.
 
@@ -132,7 +134,8 @@ def reconstruct_from_nd_patches(
 
     Returns
     -------
-    image : ndarray of shape image_size
+    image : numpy.typing.ArrayLike
+        ndarray of shape image_size
         The reconstructed image.
     """
 

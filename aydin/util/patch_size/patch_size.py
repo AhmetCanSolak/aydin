@@ -4,9 +4,17 @@ from typing import Tuple
 def default_patch_size(image, patch_size, odd: bool = True) -> Tuple[int, ...]:
     """
     Returns  a normalised patch size given an image amd a parity.
+
+    Parameters
+    ----------
+    image : numpy.typing.ArrayLike
+    patch_size : int or tuple
+    odd : bool
+
     Returns
     -------
-    object
+    tuple
+
     """
     # Default patch sizes vary with image dimension:
     if patch_size is None:
